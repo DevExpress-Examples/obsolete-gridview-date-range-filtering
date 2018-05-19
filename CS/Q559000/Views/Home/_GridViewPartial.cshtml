@@ -1,0 +1,84 @@
+@using DevExpress.Data.Filtering
+@{
+    var grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "GridView";
+        settings.CallbackRouteValues = new { Controller = "Home", Action = "GridViewPartial" };
+        settings.KeyFieldName = "OrderID";
+        settings.CommandColumn.ClearFilterButton.Visible = true;
+        settings.CommandColumn.Visible = true;
+        settings.SettingsPager.Visible = true;
+        settings.Settings.ShowGroupPanel = true;
+        settings.Settings.ShowFilterRow = true;
+        settings.SettingsBehavior.AllowSelectByRowClick = false;
+        settings.Columns.Add("OrderID");
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "OrderDate";
+            column.SetFilterTemplateContent(content =>
+            {
+                Html.DevExpress().DropDownEdit(set =>
+                {
+                    set.Name = "dde";
+                    set.SetDropDownWindowTemplateContent(c =>
+                    {
+                        Html.DevExpress().Label(s =>
+                        {
+                            s.Name = "L1";
+                            s.Text = "From:";
+                        }).Render();
+                        Html.DevExpress().DateEdit(s =>
+                        {
+                            s.Name = "dFrom";
+                            s.Date = new DateTime(1996, 1, 1);
+                        }).Render();
+                        Html.DevExpress().Label(s =>
+                        {
+                            s.Name = "L2";
+                            s.Text = "To:";
+                        }).Render();
+                        Html.DevExpress().DateEdit(s =>
+                        {
+                            s.Name = "dTo";
+                            s.Date = new DateTime(1997, 1, 1);
+                        }).Render();
+                        Html.DevExpress().Button(s =>
+                        {
+                            s.Name = "btn";
+                            s.UseSubmitBehavior = false;
+                            s.ClientSideEvents.Click = "function (s, e) { ApplyFilter( dFrom, dTo ); }";
+                            s.Text = "Apply";
+                        }).Render();
+                    });
+                }).Render();
+            });
+        });
+        settings.ClientSideEvents.EndCallback = "EndCallback";
+        settings.ProcessColumnAutoFilter = (s, e) =>
+        {
+            if (e.Value == "|") return;
+
+            if (e.Column.FieldName != "OrderDate")
+                return;
+            if (e.Kind == GridViewAutoFilterEventKind.CreateCriteria)
+            {
+                String[] dates = e.Value.Split('|');
+                Session["DateFilterText"] = dates[0] + " - " + dates[1];
+                DateTime dateFrom = Convert.ToDateTime(dates[0]), dateTo = Convert.ToDateTime(dates[1]);
+                e.Criteria = (new OperandProperty("OrderDate") >= dateFrom) & (new OperandProperty("OrderDate") <= dateTo);
+            }           
+        };
+        settings.CustomJSProperties = (s, e) =>
+        {
+            MVCxGridView g = s as MVCxGridView;
+            if (g.FilterExpression.Contains("OrderDate"))
+                e.Properties["cpFilter"] = "filter";
+            else
+                e.Properties["cpFilter"] = null;
+        };
+        settings.Columns.Add("ShipName");
+        settings.Columns.Add("ShipCity");
+        settings.Columns.Add("ShipCountry");
+    });
+}
+@grid.Bind(Model).GetHtml()
