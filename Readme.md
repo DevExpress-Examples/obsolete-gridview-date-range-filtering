@@ -1,3 +1,10 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [HomeController.cs](./CS/Q559000/Controllers/HomeController.cs) (VB: [HomeController.vb](./VB/Q559000/Controllers/HomeController.vb))
+* [_GridViewPartial.cshtml](./CS/Q559000/Views/Home/_GridViewPartial.cshtml)
+* **[Index.cshtml](./CS/Q559000/Views/Home/Index.cshtml)**
+<!-- default file list end -->
 # OBSOLETE - GridView - How to implement date range filtering using a custom editor in the AutoFilterRow
 
 
